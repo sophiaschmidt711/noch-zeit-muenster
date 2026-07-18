@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17131f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Noch Zeit?">
+  <title>Noch Zeit? · Münster</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      --ink:#17131f; --paper:#f5f0e8; --card:rgba(255,255,255,.82);
+      --purple:#7c5cff; --purple-dark:#4d32c8; --mint:#baf4d6;
+      --yellow:#ffe58f; --red:#ff756d; --muted:#716b78;
+      --line:rgba(23,19,31,.11); --shadow:0 16px 45px rgba(54,38,75,.10);
+    }
+    *{box-sizing:border-box} html{background:var(--paper)}
+    .leaflet-container{position:relative;overflow:hidden;outline:0;-webkit-tap-highlight-color:transparent}.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:256px!important;height:256px!important;padding:0}.leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-map-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-control{position:relative;z-index:800;pointer-events:auto}.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control-zoom{margin:10px}.leaflet-control-zoom a{display:grid;place-items:center;width:30px;height:30px;border-bottom:1px solid #ccc;color:#222;background:#fff;text-decoration:none}.leaflet-control-attribution{padding:2px 5px;background:rgba(255,255,255,.78);font-size:9px}.leaflet-tooltip{position:absolute;padding:6px 8px;border:1px solid #fff;border-radius:8px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.18);white-space:nowrap;pointer-events:none}.leaflet-zoom-animated{transform-origin:0 0}
+    body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 85% 5%,rgba(124,92,255,.25),transparent 28rem),radial-gradient(circle at 0 75%,rgba(186,244,214,.65),transparent 26rem),var(--paper);font-family:ui-rounded,"SF Pro Rounded","Avenir Next",Avenir,system-ui,sans-serif}
+    button,input{font:inherit} button{color:inherit}
+    .app{width:min(100%,560px);margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 18px max(34px,env(safe-area-inset-bottom))}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:21px}.header-actions{display:flex;gap:8px}
+    .eyebrow{margin:0 0 3px;color:var(--purple-dark);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(38px,11vw,58px);line-height:.96;letter-spacing:-.055em}
+    .icon-button{display:grid;place-items:center;flex:0 0 auto;width:46px;height:46px;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.65);cursor:pointer;transition:transform .25s ease,background .2s ease}
+    .icon-button:hover{background:white}.icon-button.loading{transform:rotate(180deg)}
+    .search-wrap{position:relative;z-index:5;margin-bottom:11px}
+    .search-box{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:9px;min-height:57px;padding:6px 8px 6px 17px;border:1px solid var(--line);border-radius:19px;background:rgba(255,255,255,.84);box-shadow:0 8px 26px rgba(54,38,75,.07);backdrop-filter:blur(14px)}
+    .search-icon{font-size:19px;opacity:.52}.search-box input{min-width:0;border:0;outline:0;background:transparent;font-size:16px;font-weight:700}.search-box input::placeholder{color:#9c96a1;font-weight:650}
+    .locate{height:41px;padding:0 12px;border:0;border-radius:13px;background:#ece6ff;color:var(--purple-dark);font-size:13px;font-weight:850;cursor:pointer}.locate:disabled{opacity:.55}
+    .suggestions{position:absolute;top:64px;left:0;right:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 18px 50px rgba(23,19,31,.18)}
+    .suggestion{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:white;text-align:left;cursor:pointer}.suggestion:last-child{border-bottom:0}.suggestion:hover{background:#f7f3ff}.suggestion strong{font-size:14px}.suggestion small{color:var(--muted)}
+    .quick-row{display:flex;gap:7px;overflow-x:auto;margin:0 -18px 14px;padding:0 18px 3px;scrollbar-width:none}.quick-row::-webkit-scrollbar{display:none}
+    .quick{flex:0 0 auto;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.56);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}.quick.active{color:white;background:var(--ink)}
+    .nearby{margin:0 0 14px;padding:13px 15px;border:1px solid rgba(124,92,255,.18);border-radius:17px;background:rgba(236,230,255,.66)}
+    .nearby-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px}.nearby-head strong{font-size:12px;text-transform:uppercase;letter-spacing:.07em}.nearby-head span{color:var(--muted);font-size:11px}
+    .nearby-list{display:flex;gap:7px;overflow:auto;scrollbar-width:none}.nearby-list::-webkit-scrollbar{display:none}.nearby-chip{flex:0 0 auto;padding:8px 11px;border:0;border-radius:11px;background:white;font-size:12px;font-weight:800;cursor:pointer}.nearby-chip small{display:block;margin-top:2px;color:var(--muted);font-weight:650}
+    .hero{overflow:hidden;position:relative;min-height:191px;padding:23px;border-radius:27px;background:var(--mint);box-shadow:var(--shadow);transition:background .3s ease}
+    .hero::after{content:"";position:absolute;right:-48px;bottom:-68px;width:190px;height:190px;border:30px solid rgba(255,255,255,.3);border-radius:50%}.hero.hurry{background:var(--yellow)}.hero.run{color:white;background:var(--red)}.hero.missed{color:white;background:var(--ink)}
+    .hero-label,.hero-status,.hero-detail{position:relative;z-index:1}.hero-label{margin:0 0 4px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.72}.hero-status{margin:0;max-width:390px;font-size:clamp(38px,10vw,54px);font-weight:850;line-height:.95;letter-spacing:-.05em}.hero-detail{margin:17px 0 0;font-size:14px;font-weight:650;opacity:.78}
+    .stopline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:21px 2px 9px}.stop-title{min-width:0}.stop-title h2{overflow:hidden;margin:0;font-size:18px;letter-spacing:-.02em;text-overflow:ellipsis;white-space:nowrap}.stop-title span{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:650}.favorite{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.65);font-size:20px;cursor:pointer}.favorite.on{color:#e44b66;background:#fff0f3}
+    details.options{margin-bottom:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.48)}details.options summary{padding:11px 14px;color:var(--muted);font-size:12px;font-weight:800;cursor:pointer;list-style:none}details.options summary::-webkit-details-marker{display:none}.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px}.field label{display:block;margin-bottom:5px;color:var(--muted);font-size:11px;font-weight:750}.field input{width:100%;height:39px;padding:0 10px;border:1px solid var(--line);border-radius:11px;background:white;outline:0;font-size:13px;font-weight:750}
+    .overview-card{overflow:hidden;margin-top:12px;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:var(--shadow)}.overview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px}.overview-head strong{display:block;font-size:15px}.overview-head span{display:block;margin-top:2px;color:var(--muted);font-size:10px;font-weight:650}.overview-live{flex:0 0 auto;padding:6px 9px;border-radius:999px;color:#17623d;background:#dff8ea;font-size:10px;font-weight:850}.overview-map{height:265px;background:#e9e4dc}.overview-info{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:37px;padding:8px 13px;color:var(--muted);font-size:10px;font-weight:650}.overview-reset{padding:6px 9px;border:0;border-radius:9px;color:var(--purple-dark);background:#eee9ff;font-size:10px;font-weight:850;cursor:pointer}.departures{display:grid;gap:9px}.departure{display:grid;grid-template-columns:49px 1fr auto;align-items:center;gap:13px;min-height:82px;padding:13px 15px 13px 12px;border:1px solid var(--line);border-radius:20px;background:var(--card);backdrop-filter:blur(12px);cursor:pointer;text-align:left;transition:transform .18s ease,border-color .18s ease,background .18s ease}.departure:hover{transform:translateY(-1px);border-color:rgba(124,92,255,.35);background:#fff}.departure:focus-visible{outline:3px solid rgba(124,92,255,.32);outline-offset:2px}.map-hint{display:block;margin-top:5px;color:var(--purple-dark);font-size:10px;font-weight:800}.bus-map-card{overflow:hidden;border:1px solid rgba(124,92,255,.24);border-radius:22px;background:#fff;box-shadow:var(--shadow)}.bus-map-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px}.bus-map-title{min-width:0}.bus-map-title strong{display:block;font-size:14px}.bus-map-title span{display:block;overflow:hidden;margin-top:2px;color:var(--muted);font-size:11px;text-overflow:ellipsis;white-space:nowrap}.map-close{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:50%;background:#f1edf5;cursor:pointer}.bus-map{height:235px;background:#e9e4dc}.map-note{padding:9px 13px;color:var(--muted);font-size:10px;font-weight:650}.bus-marker{display:grid;place-items:center;width:38px;height:38px;border:3px solid white;border-radius:13px;color:white;background:var(--purple);box-shadow:0 5px 14px rgba(23,19,31,.28);font-size:13px;font-weight:950}.overview-bus{display:grid;place-items:center;min-width:29px;height:29px;padding:0 5px;border:2px solid white;border-radius:10px;color:white;background:var(--purple);box-shadow:0 3px 10px rgba(23,19,31,.25);font-size:10px;font-weight:950}.overview-bus.selected{color:var(--ink);background:var(--yellow);transform:scale(1.16)}.stop-marker{width:17px;height:17px;border:4px solid white;border-radius:50%;background:var(--ink);box-shadow:0 3px 10px rgba(23,19,31,.3)}
+    .journeys-section{margin-top:20px}.section-head{display:flex;align-items:end;justify-content:space-between;margin:0 2px 9px}.section-head h2{margin:0;font-size:18px}.section-head button{border:0;background:none;color:var(--purple-dark);font-size:11px;font-weight:850;cursor:pointer}.journey-list{display:grid;gap:9px}.journey-card{padding:14px 15px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.8)}.journey-top{display:flex;justify-content:space-between;gap:10px}.journey-title{font-size:15px;font-weight:900}.journey-time{flex:0 0 auto;padding:5px 8px;border-radius:9px;background:#eee9ff;color:var(--purple-dark);font-size:11px;font-weight:850}.journey-route{margin:4px 0 10px;color:var(--muted);font-size:11px;font-weight:650}.journey-live{margin:0 0 10px;font-size:12px;font-weight:750}.journey-link{display:block;padding:10px 12px;border-radius:12px;color:white;background:var(--ink);font-size:12px;font-weight:850;text-align:center;text-decoration:none}.empty-journeys{padding:18px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);font-size:12px;text-align:center}.settings-dialog{width:min(92vw,520px);max-height:88vh;padding:0;border:0;border-radius:26px;background:var(--paper);box-shadow:0 30px 90px rgba(23,19,31,.32)}.settings-dialog::backdrop{background:rgba(23,19,31,.46);backdrop-filter:blur(3px)}.settings-inner{overflow:auto;max-height:88vh;padding:20px}.settings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.settings-head h2{margin:0;font-size:25px}.settings-block{margin-top:18px;padding:15px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.7)}.settings-block h3{margin:0 0 10px;font-size:14px}.favorite-manager{display:flex;flex-wrap:wrap;gap:7px}.manage-chip{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:#eee9ff;font-size:11px;font-weight:800}.manage-chip button{border:0;background:none;color:#a64455;cursor:pointer}.settings-field{display:grid;gap:5px;margin-top:9px}.settings-field label{color:var(--muted);font-size:10px;font-weight:750}.settings-field input,.settings-field select{width:100%;height:42px;padding:0 11px;border:1px solid var(--line);border-radius:11px;background:white;font:inherit;font-size:13px;font-weight:700}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.primary-button{width:100%;margin-top:12px;padding:11px;border:0;border-radius:12px;color:white;background:var(--purple-dark);font-weight:850;cursor:pointer}.saved-journeys{display:grid;gap:7px;margin-top:12px}.saved-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:12px;background:white;font-size:11px;font-weight:750}.saved-row button{border:0;background:none;color:#a64455;cursor:pointer}
+    .line-badge{display:grid;place-items:center;width:49px;height:49px;border-radius:15px;color:white;background:var(--purple);font-size:20px;font-weight:900;box-shadow:inset 0 -3px rgba(0,0,0,.1)}.destination{overflow:hidden;margin:0 0 5px;font-size:15px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.meta{display:flex;flex-wrap:wrap;gap:5px 9px;color:var(--muted);font-size:12px;font-weight:650}.delay.positive{color:#b6473f}.time{text-align:right}.minutes{display:block;font-size:22px;font-weight:900;letter-spacing:-.04em}.clock{color:var(--muted);font-size:11px;font-weight:700}.message{padding:30px 18px;border:1px dashed rgba(23,19,31,.22);border-radius:20px;color:var(--muted);text-align:center;line-height:1.45}.message button{display:block;margin:12px auto 0;padding:9px 13px;border:0;border-radius:11px;background:var(--ink);color:white;font-weight:800;cursor:pointer}
+    footer{display:flex;justify-content:space-between;gap:12px;margin:18px 2px 0;color:var(--muted);font-size:11px}
+    [hidden]{display:none!important}
+    @media(max-width:380px){.departure{grid-template-columns:44px 1fr auto;gap:10px}.line-badge{width:44px;height:44px}.locate{padding:0 9px}.option-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div><p class="eyebrow">🚌 Münster · live</p><h1>Noch Zeit?</h1></div>
+      <div class="header-actions"><button class="icon-button" id="settingsButton" aria-label="Meine Wege und Favoriten" title="Meine Wege und Favoriten">☰</button><button class="icon-button" id="refresh" aria-label="Aktualisieren" title="Aktualisieren">↻</button></div>
+    </header>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">📍</span>
+        <input id="search" type="search" placeholder="Haltestelle suchen …" autocomplete="off" autocapitalize="sentences">
+        <button class="locate" id="locate">◎ Nähe</button>
+      </div>
+      <div class="suggestions" id="suggestions" hidden></div>
+    </div>
+
+    <div class="quick-row" id="favorites" aria-label="Favoriten"></div>
+    <section class="nearby" id="nearby" hidden>
+      <div class="nearby-head"><strong>In deiner Nähe</strong><span id="locationStatus"></span></div>
+      <div class="nearby-list" id="nearbyList"></div>
+    </section>
+
+    <section class="hero" id="hero" aria-live="polite">
+      <p class="hero-label" id="heroLabel">Haltestellen laden</p>
+      <p class="hero-status" id="heroStatus">einen Moment</p>
+      <p class="hero-detail" id="heroDetail">Die Echtzeitdaten werden vorbereitet.</p>
+    </section>
+
+    <section class="overview-card">
+      <div class="overview-head"><div><strong>🗺️ Busse gerade in Münster</strong><span>🚌 Bus antippen für den Fahrtverlauf</span></div><span class="overview-live" id="overviewCount">live</span></div>
+      <div class="overview-map" id="overviewMap" aria-label="Karte mit allen fahrenden Bussen"></div>
+      <div class="overview-info"><span id="overviewInfo">Live-Positionen werden geladen …</span><button class="overview-reset" id="overviewReset" hidden>Alle Busse</button></div>
+    </section>
+
+    <section class="journeys-section">
+      <div class="section-head"><h2>🧭 Meine Wege</h2><button id="editJourneys">✏️ Bearbeiten</button></div>
+      <div class="journey-list" id="journeyList"></div>
+    </section>
+
+    <div class="stopline">
+      <div class="stop-title"><h2 id="stopName">Münster</h2><span id="stopMeta">Live-Abfahrten</span></div>
+      <button class="favorite" id="favorite" aria-label="Favorit umschalten" title="Als Favorit speichern">♡</button>
+    </div>
+
+    <details class="options">
+      <summary>⚙ Anzeige anpassen</summary>
+      <div class="option-grid">
+        <div class="field"><label for="walkMinutes">Fußweg in Minuten</label><input id="walkMinutes" type="number" min="0" max="60" step="1" value="3"></div>
+        <div class="field"><label for="lineFilter">Nur Linien, z. B. 2, 10</label><input id="lineFilter" type="text" inputmode="numeric" placeholder="alle Linien"></div>
+      </div>
+    </details>
+
+    <section class="departures" id="departures" aria-live="polite"><div class="message">Live-Abfahrten werden geladen …</div></section>
+    <footer><span id="updated">Noch nicht aktualisiert</span><span>automatisch alle 20 Sekunden</span></footer>
+  </main>
+
+  <dialog class="settings-dialog" id="settingsDialog">
+    <div class="settings-inner">
+      <div class="settings-head"><h2>🧭 Meine Wege</h2><button class="map-close" id="settingsClose" aria-label="Menü schließen">×</button></div>
+      <section class="settings-block"><h3>⭐ Haltestellen-Favoriten</h3><div class="favorite-manager" id="favoriteManager"></div><div class="settings-field"><label for="favoriteSelect">📍 Haltestelle hinzufügen</label><select id="favoriteSelect"><option value="">Haltestellen werden geladen …</option></select></div><button class="primary-button" id="addFavorite">⭐ Favorit hinzufügen</button></section>
+      <section class="settings-block"><h3>🔁 Häufige Fahrt speichern</h3><div class="settings-field"><label for="journeyName">🏷️ Name, z. B. Zur Uni</label><input id="journeyName" placeholder="Zur Uni"></div><div class="settings-field"><label for="journeyFrom">🚏 Start</label><select id="journeyFrom"></select></div><div class="settings-field"><label for="journeyTo">🏁 Ziel</label><select id="journeyTo"></select></div><div class="settings-field"><label for="journeyWalk">🚶 Fußweg zum Start in Minuten</label><input id="journeyWalk" type="number" min="0" max="60" value="3"></div><button class="primary-button" id="saveJourney">💾 Fahrt speichern</button><div class="saved-journeys" id="savedJourneys"></div></section>
+    </div>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const API = "https://rest.busradar.conterra.de/prod";
+    const DEFAULT_FAVORITES = ["Scharnhorststr.", "Körnerstraße"];
+    const state = {
+      stopGroups: [], selected: localStorage.getItem("nz-selected-stop") || "Scharnhorststr.",
+      favorites: readJSON("nz-favorites", DEFAULT_FAVORITES), departures: [], nearby: [], vehicles: [], visibleDepartures: [],
+      walkMinutes: Number(localStorage.getItem("nz-walk-minutes") || 3),
+      lineFilter: localStorage.getItem("nz-line-filter") || "", openTrip: null,
+      journeys: readJSON("nz-journeys", [])
+    };
+
+    const $ = selector => document.querySelector(selector);
+    const hero = $("#hero"), list = $("#departures"), refreshButton = $("#refresh");
+    let refreshTimer, liveMap, busMarker, stopMarker, overviewMap, overviewMarkers, overviewRoute, overviewSelectedTrip;
+
+    function readJSON(key, fallback){try{return JSON.parse(localStorage.getItem(key)) || fallback}catch{return fallback}}
+    function normalize(value){return String(value||"").toLocaleLowerCase("de-DE").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ß/g,"ss")}
+    function displayName(name){return name === "Scharnhorststr." ? "Scharnhorststraße" : name}
+    function actualDeparture(item){return Number(item.tatsaechliche_abfahrtszeit || item.abfahrtszeit || 0)}
+    function relativeMinutes(timestamp){return Math.ceil((timestamp-Date.now()/1000)/60)}
+    function timeText(timestamp){return new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit"}).format(new Date(timestamp*1000))}
+    function escapeHtml(value){return String(value).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c])}
+    function occupancyText(value){if(!value||/unbekannt/i.test(value))return"Auslastung unbekannt";if(/überfüllt/i.test(value))return"🔴 überfüllt";if(/stark/i.test(value))return"🟠 stark besetzt";if(/mittel/i.test(value))return"🟡 mittel besetzt";return"🟢 schwach besetzt"}
+    function lineColor(line){const colors=["#ef476f","#118ab2","#f08c46","#06a77d","#7c5cff","#d45d9e","#2f80ed","#8c6d31","#00a6a6","#e4572e","#5b8c3a","#9b51e0"];const key=String(line||"");let hash=0;for(const char of key)hash=(hash*31+char.charCodeAt(0))>>>0;return colors[hash%colors.length]}
+
+    function buildGroups(features){
+      const grouped = new Map();
+      features.forEach(feature=>{
+        const p=feature.properties||{}, name=p.lbez;
+        if(!name||!p.nr)return;
+        if(!grouped.has(name))grouped.set(name,{name,stops:[],coordinates:[]});
+        const group=grouped.get(name); group.stops.push(p); if(feature.geometry?.coordinates)group.coordinates.push(feature.geometry.coordinates);
+      });
+      return [...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name,"de"));
+    }
+
+    async function initialize(){
+      try{
+        const response=await fetch(`${API}/haltestellen`,{cache:"no-store"});
+        if(!response.ok)throw new Error();
+        const data=await response.json(); state.stopGroups=buildGroups(data.features||[]);
+        if(!findGroup(state.selected))state.selected=state.stopGroups[0]?.name||"";
+        renderFavorites(); selectStop(state.selected,false); tryAutoLocation(); initializeOverviewMap(); populateStopMenus(); renderJourneys();
+      }catch{
+        showFatal("Die Haltestellen konnten gerade nicht geladen werden.");
+      }
+    }
+
+    function findGroup(name){return state.stopGroups.find(group=>group.name===name)}
+    function selectStop(name,save=true){
+      if(!findGroup(name))return; state.selected=name;
+      if(save)localStorage.setItem("nz-selected-stop",name);
+      $("#search").value=""; $("#suggestions").hidden=true; renderFavorites(); updateFavorite(); loadDepartures();
+    }
+
+    function renderFavorites(){
+      const container=$("#favorites");
+      if(!state.favorites.length){container.innerHTML='<button class="quick" id="firstFavorite">♡ Favoriten hier speichern</button>';return}
+      container.innerHTML=state.favorites.map(name=>`<button class="quick ${name===state.selected?"active":""}" data-stop="${escapeHtml(name)}">${escapeHtml(displayName(name))}</button>`).join("");
+      container.querySelectorAll("[data-stop]").forEach(button=>button.addEventListener("click",()=>selectStop(button.dataset.stop)));
+    }
+
+    function updateFavorite(){const on=state.favorites.includes(state.selected),button=$("#favorite");button.classList.toggle("on",on);button.textContent=on?"♥":"♡";button.title=on?"Aus Favoriten entfernen":"Als Favorit speichern"}
+    function toggleFavorite(){
+      const index=state.favorites.indexOf(state.selected); if(index>=0)state.favorites.splice(index,1);else state.favorites.push(state.selected);
+      saveFavorites();
+    }
+    function saveFavorites(){localStorage.setItem("nz-favorites",JSON.stringify(state.favorites));renderFavorites();updateFavorite();renderFavoriteManager()}
+
+    function lineFilters(){return state.lineFilter.split(",").map(v=>v.trim().toLocaleLowerCase()).filter(Boolean)}
+    function filteredDepartures(){const filters=lineFilters();return state.departures.filter(item=>!filters.length||filters.includes(String(item.linientext||"").toLocaleLowerCase()))}
+
+    async function loadDepartures(){
+      const group=findGroup(state.selected); if(!group)return;
+      refreshButton.classList.add("loading"); $("#stopName").textContent=displayName(group.name);$("#stopMeta").textContent=`${group.stops.length} ${group.stops.length===1?"Haltepunkt":"Haltepunkte"} · Echtzeit`;
+      list.innerHTML='<div class="message">Live-Abfahrten werden geladen …</div>';
+      try{
+        const results=await Promise.all(group.stops.map(stop=>fetch(`${API}/haltestellen/${stop.nr}/abfahrten?sekunden=7200`,{cache:"no-store"}).then(r=>r.ok?r.json():[]).catch(()=>[])));
+        const seen=new Set();state.departures=results.flat().filter(item=>{
+          const key=`${item.fahrtbezeichner}-${item.sequenz}-${item.haltid}`;if(seen.has(key)||String(item.einsteigeverbot)==="true")return false;seen.add(key);return true;
+        }).sort((a,b)=>actualDeparture(a)-actualDeparture(b));
+        renderDepartures();$("#updated").textContent=`Stand ${new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date())}`;
+        if(state.openTrip)refreshOpenMap();
+      }catch{showFatal("Die Live-Daten konnten nicht geladen werden.")}
+      finally{setTimeout(()=>refreshButton.classList.remove("loading"),280)}
+    }
+
+    function renderHero(){
+      hero.className="hero";const next=filteredDepartures().find(item=>actualDeparture(item)>Date.now()/1000-30);
+      if(!next){hero.classList.add("missed");$("#heroLabel").textContent="🌙 Gerade kein passender Bus";$("#heroStatus").textContent="kurz warten";$("#heroDetail").textContent="🔄 Ich prüfe die Verbindung automatisch weiter.";return}
+      const busMin=relativeMinutes(actualDeparture(next)),leaveSec=actualDeparture(next)-Date.now()/1000-state.walkMinutes*60,leaveMin=Math.ceil(leaveSec/60);
+      $("#heroLabel").textContent=`🚌 Linie ${next.linientext} fährt in ${Math.max(0,busMin)} Min.`;
+      if(leaveSec<=0){hero.classList.add("missed");$("#heroStatus").textContent="😬 der wird knapp";$("#heroDetail").textContent="👉 Lieber schon den nächsten Bus darunter anpeilen."}
+      else if(leaveMin<=2){hero.classList.add("run");$("#heroStatus").textContent="🏃 jetzt los!";$("#heroDetail").textContent=`⏱️ Noch etwa ${leaveMin} ${leaveMin===1?"Minute":"Minuten"} bis du losmusst.`}
+      else if(leaveMin<=5){hero.classList.add("hurry");$("#heroStatus").textContent="🧥 Jacke an";$("#heroDetail").textContent=`🚶 In ${leaveMin} Minuten losgehen · ${state.walkMinutes} Minuten Fußweg.`}
+      else{$("#heroStatus").textContent="😌 noch entspannt";$("#heroDetail").textContent=`🚶 In ${leaveMin} Minuten losgehen · ${state.walkMinutes} Minuten Fußweg.`}
+    }
+
+    function renderDepartures(){
+      const current=Date.now()/1000,visible=filteredDepartures().filter(item=>actualDeparture(item)>current-30).slice(0,8);
+      if(!visible.length){list.innerHTML='<div class="message">In den nächsten zwei Stunden ist keine passende Abfahrt gemeldet.</div>';renderHero();return}
+      state.visibleDepartures=visible;
+      list.innerHTML=visible.map((item,index)=>{const ts=actualDeparture(item),mins=Math.max(0,relativeMinutes(ts)),d=Math.round(Number(item.delay||0)/60),delay=d>0?`<span class="delay positive">🐌 +${d} Min.</span>`:'<span class="delay">✨ pünktlich</span>';return`<button class="departure" data-map-index="${index}" aria-label="Linie ${escapeHtml(item.linientext)} auf der Karte anzeigen"><div class="line-badge" style="background:${lineColor(item.linientext)}">${escapeHtml(item.linientext)}</div><div><p class="destination">🏁 ${escapeHtml(item.richtungstext||"Richtung unbekannt")}</p><div class="meta">${delay}<span>${occupancyText(item.besetztgrad)}</span></div><span class="map-hint">🗺️ Auf Karte zeigen</span></div><div class="time"><span class="minutes">${mins} min</span><span class="clock">🕐 ${timeText(ts)} Uhr</span></div></button>`}).join("");
+      list.querySelectorAll("[data-map-index]").forEach(button=>button.addEventListener("click",()=>openBusMap(state.visibleDepartures[Number(button.dataset.mapIndex)])));
+      renderHero();
+    }
+
+    async function fetchVehicles(){
+      const response=await fetch(`${API}/fahrzeuge`,{cache:"no-store"});
+      if(!response.ok)throw new Error("Fahrzeugposition nicht verfügbar");
+      const data=await response.json();state.vehicles=data.features||[];return state.vehicles;
+    }
+    function initializeOverviewMap(){
+      overviewMap=L.map("overviewMap",{zoomControl:false,attributionControl:true}).setView([51.9607,7.6261],12);L.control.zoom({position:"bottomright"}).addTo(overviewMap);
+      addReliableTiles(overviewMap);overviewMarkers=L.layerGroup().addTo(overviewMap);loadOverviewVehicles();setTimeout(()=>overviewMap.invalidateSize(true),250);
+    }
+    async function loadOverviewVehicles(){
+      if(!overviewMap)return;try{await fetchVehicles();renderOverviewVehicles()}catch{$("#overviewInfo").textContent="Die Buspositionen sind gerade nicht verfügbar."}
+    }
+    function renderOverviewVehicles(){
+      overviewMarkers.clearLayers();const bounds=[];
+      state.vehicles.forEach(feature=>{const coordinates=feature.geometry?.coordinates,p=feature.properties||{};if(!coordinates)return;const point=[coordinates[1],coordinates[0]],selected=overviewSelectedTrip===p.fahrtbezeichner;
+        const marker=L.marker(point,{icon:L.divIcon({className:"",html:`<div class="overview-bus ${selected?"selected":""}" style="background:${lineColor(p.linientext)}">${escapeHtml(p.linientext||"🚌")}</div>`,iconSize:[34,29],iconAnchor:[17,14]})}).addTo(overviewMarkers);
+        marker.bindTooltip(`Linie ${escapeHtml(p.linientext||"")} · ${escapeHtml(p.richtungstext||"")}`,{direction:"top",offset:[0,-10]});marker.on("click",()=>showTripRoute(feature));bounds.push(point);
+      });
+      $("#overviewCount").textContent=`${state.vehicles.length} live`;if(!overviewSelectedTrip)$("#overviewInfo").textContent="Tippe einen Bus an, um seinen aktuellen Fahrtweg zu sehen.";
+      if(bounds.length&&!overviewSelectedTrip)overviewMap.fitBounds(bounds,{padding:[14,14],maxZoom:13});
+    }
+    async function showTripRoute(feature){
+      const p=feature.properties||{};overviewSelectedTrip=p.fahrtbezeichner;renderOverviewVehicles();$("#overviewInfo").textContent=`Linie ${p.linientext||""} Richtung ${p.richtungstext||""} · Fahrtweg wird geladen …`;$("#overviewReset").hidden=false;
+      try{const response=await fetch(`${API}/fahrten/${encodeURIComponent(p.fahrtbezeichner)}`,{cache:"no-store"});if(!response.ok)throw new Error();const trip=await response.json();const coordinates=trip.geometry?.coordinates||[];if(!coordinates.length)throw new Error();if(overviewRoute)overviewRoute.remove();overviewRoute=L.polyline(coordinates.map(c=>[c[1],c[0]]),{color:lineColor(p.linientext),weight:7,opacity:.88,lineCap:"round",lineJoin:"round"}).addTo(overviewMap);overviewRoute.bringToBack();overviewMap.fitBounds(overviewRoute.getBounds(),{padding:[24,24]});const delay=Math.round(Number(p.delay||0)/60);$("#overviewInfo").textContent=`🚌 Linie ${p.linientext||""} → ${p.richtungstext||""} · ${delay>0?"🐌 +"+delay+" Min.":delay<0?"⚡ "+Math.abs(delay)+" Min. früher":"✨ pünktlich"}`}
+      catch{$("#overviewInfo").textContent="Der genaue Fahrtverlauf ist für diesen Bus gerade nicht verfügbar."}
+    }
+    function resetOverview(){overviewSelectedTrip=null;if(overviewRoute){overviewRoute.remove();overviewRoute=null}$("#overviewReset").hidden=true;renderOverviewVehicles()}
+    function addReliableTiles(map){
+      const primary=L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,keepBuffer:5,updateWhenIdle:false,crossOrigin:true,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © CARTO'}).addTo(map);let errors=0;
+      primary.on("tileerror",()=>{errors++;if(errors===3){primary.remove();L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,keepBuffer:5,updateWhenIdle:false,crossOrigin:true,attribution:'© OpenStreetMap'}).addTo(map);setTimeout(()=>map.invalidateSize(true),100)}});
+    }
+    function matchingVehicle(item){return state.vehicles.find(feature=>feature.properties?.fahrtbezeichner===item.fahrtbezeichner)||state.vehicles.find(feature=>String(feature.properties?.fahrzeugid)===String(item.fahrzeugid))}
+    function stopCenter(){const coordinates=findGroup(state.selected)?.coordinates||[];if(!coordinates.length)return null;return[coordinates.reduce((sum,c)=>sum+c[1],0)/coordinates.length,coordinates.reduce((sum,c)=>sum+c[0],0)/coordinates.length]}
+    async function openBusMap(item){
+      if(liveMap)liveMap.remove();liveMap=null;busMarker=null;stopMarker=null;$("#busMapCard")?.remove();
+      state.openTrip=item.fahrtbezeichner||item.fahrzeugid;list.insertAdjacentHTML("afterend",`<section class="bus-map-card" id="busMapCard"><div class="bus-map-head"><div class="bus-map-title"><strong>Linie ${escapeHtml(item.linientext)} live</strong><span>Richtung ${escapeHtml(item.richtungstext||"unbekannt")}</span></div><button class="map-close" id="mapClose" aria-label="Karte schließen">×</button></div><div class="bus-map" id="busMap"></div><div class="map-note" id="mapNote">Aktuelle Busposition wird geladen …</div></section>`);
+      $("#mapClose").addEventListener("click",closeBusMap);
+      const center=stopCenter()||[51.9607,7.6261];liveMap=L.map("busMap",{zoomControl:false,attributionControl:true}).setView(center,14);L.control.zoom({position:"bottomright"}).addTo(liveMap);
+      addReliableTiles(liveMap);
+      stopMarker=L.marker(center,{icon:L.divIcon({className:"",html:'<div class="stop-marker"></div>',iconSize:[17,17],iconAnchor:[8,8]})}).addTo(liveMap).bindPopup(escapeHtml(displayName(state.selected)));
+      try{await fetchVehicles();updateBusMarker(item)}catch{$("#mapNote").textContent="Für diese Fahrt ist gerade keine Live-Position verfügbar."}
+      $("#busMapCard").scrollIntoView({behavior:"smooth",block:"nearest"});
+    }
+    function updateBusMarker(item){
+      const vehicle=matchingVehicle(item),coordinates=vehicle?.geometry?.coordinates;if(!coordinates)return $("#mapNote")&&($("#mapNote").textContent="Für diese Fahrt ist gerade keine Live-Position verfügbar.");
+      const point=[coordinates[1],coordinates[0]],icon=L.divIcon({className:"",html:`<div class="bus-marker" style="background:${lineColor(item.linientext)}">${escapeHtml(item.linientext)}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
+      if(busMarker)busMarker.setLatLng(point);else busMarker=L.marker(point,{icon}).addTo(liveMap);
+      const stop=stopCenter();if(stop)liveMap.fitBounds(L.latLngBounds([point,stop]).pad(.42),{maxZoom:16});
+      const delay=Math.round(Number(vehicle.properties?.delay||0)/60);$("#mapNote").textContent=`Live-Position · ${delay>0?"+"+delay+" Min. Verspätung":delay<0?Math.abs(delay)+" Min. früher":"pünktlich"} · aktualisiert ${new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date())}`;
+    }
+    async function refreshOpenMap(){if(!state.openTrip||!liveMap)return;const item=state.departures.find(d=>(d.fahrtbezeichner||d.fahrzeugid)===state.openTrip);if(!item)return closeBusMap();try{await fetchVehicles();updateBusMarker(item)}catch{}}
+    function closeBusMap(){state.openTrip=null;liveMap?.remove();liveMap=null;busMarker=null;stopMarker=null;$("#busMapCard")?.remove()}
+
+    function populateStopMenus(){
+      const options='<option value="">Haltestelle auswählen …</option>'+state.stopGroups.map(group=>`<option value="${escapeHtml(group.name)}">${escapeHtml(displayName(group.name))}</option>`).join("");
+      $("#favoriteSelect").innerHTML=options;$("#journeyFrom").innerHTML=options;$("#journeyTo").innerHTML=options;renderFavoriteManager();renderSavedJourneys();
+    }
+    function renderFavoriteManager(){
+      const box=$("#favoriteManager");if(!box)return;box.innerHTML=state.favorites.length?state.favorites.map((name,index)=>`<span class="manage-chip">${escapeHtml(displayName(name))}<button data-remove-favorite="${index}" aria-label="${escapeHtml(displayName(name))} entfernen">×</button></span>`).join(""):'<span style="color:var(--muted);font-size:11px">Noch keine Favoriten gespeichert.</span>';
+      box.querySelectorAll("[data-remove-favorite]").forEach(button=>button.addEventListener("click",()=>{state.favorites.splice(Number(button.dataset.removeFavorite),1);saveFavorites()}));
+    }
+    function addFavoriteFromMenu(){const name=$("#favoriteSelect").value;if(!name||state.favorites.includes(name))return;state.favorites.push(name);saveFavorites();$("#favoriteSelect").value=""}
+    function saveJourney(){
+      const from=$("#journeyFrom").value,to=$("#journeyTo").value,name=$("#journeyName").value.trim(),walk=Math.max(0,Number($("#journeyWalk").value)||0);if(!from||!to||from===to)return alert("Bitte zwei unterschiedliche Haltestellen auswählen.");
+      state.journeys.push({id:Date.now(),name:name||`${displayName(from)} → ${displayName(to)}`,from,to,walk});localStorage.setItem("nz-journeys",JSON.stringify(state.journeys));renderJourneys();renderSavedJourneys();$("#journeyName").value="";
+    }
+    function removeJourney(id){state.journeys=state.journeys.filter(journey=>journey.id!==id);localStorage.setItem("nz-journeys",JSON.stringify(state.journeys));renderJourneys();renderSavedJourneys()}
+    function plannerUrl(journey){
+      const formik=`origin=${displayName(journey.from)}&destination=${displayName(journey.to)}`;return`https://www.stadtwerke-muenster.de/unterwegs/fahrplan/fahrplanauskunft?formik=${encodeURIComponent(formik)}`;
+    }
+    function renderSavedJourneys(){const box=$("#savedJourneys");if(!box)return;box.innerHTML=state.journeys.map(journey=>`<div class="saved-row"><span>🔁 ${escapeHtml(journey.name)}</span><button data-delete-journey="${journey.id}">🗑️ Löschen</button></div>`).join("");box.querySelectorAll("[data-delete-journey]").forEach(button=>button.addEventListener("click",()=>removeJourney(Number(button.dataset.deleteJourney))))}
+    async function nextJourneyDepartures(journey){
+      const group=findGroup(journey.from);if(!group)return[];const results=await Promise.all(group.stops.map(stop=>fetch(`${API}/haltestellen/${stop.nr}/abfahrten?sekunden=7200`,{cache:"no-store"}).then(r=>r.ok?r.json():[]).catch(()=>[])));return results.flat().filter(item=>actualDeparture(item)>Date.now()/1000-30).sort((a,b)=>actualDeparture(a)-actualDeparture(b)).slice(0,3);
+    }
+    async function renderJourneys(){
+      const box=$("#journeyList");if(!state.journeys.length){box.innerHTML='<div class="empty-journeys">✨ Speichere im Menü deine regelmäßigen Wege, dann stehen sie hier direkt bereit.</div>';return}box.innerHTML=state.journeys.map(journey=>`<article class="journey-card" id="journey-${journey.id}"><div class="journey-top"><span class="journey-title">🔁 ${escapeHtml(journey.name)}</span><span class="journey-time">🟢 ab jetzt</span></div><p class="journey-route">🚏 ${escapeHtml(displayName(journey.from))} → 🏁 ${escapeHtml(displayName(journey.to))} · 🚶 ${journey.walk} Min.</p><p class="journey-live">⏳ Live-Abfahrten werden geladen …</p><a class="journey-link" href="${plannerUrl(journey)}" target="_blank" rel="noopener">🧭 Verbindungen ab jetzt ansehen</a></article>`).join("");
+      state.journeys.forEach(async journey=>{const card=$(`#journey-${journey.id} .journey-live`);try{const departures=await nextJourneyDepartures(journey);card.textContent=departures.length?`🚌 Jetzt ab Start: ${departures.map(item=>`Linie ${item.linientext} in ${Math.max(0,relativeMinutes(actualDeparture(item)))} Min.`).join(" · ")}`:"🌙 Gerade keine Live-Abfahrten gemeldet."}catch{card.textContent="📡 Live-Abfahrten gerade nicht verfügbar."}});
+    }
+    function openSettings(){renderFavoriteManager();renderSavedJourneys();$("#settingsDialog").showModal()}
+
+    function searchStops(query){
+      const box=$("#suggestions"),q=normalize(query);if(!q){box.hidden=true;return}
+      const starts=[],contains=[];state.stopGroups.forEach(group=>{const n=normalize(displayName(group.name));if(n.startsWith(q))starts.push(group);else if(n.includes(q))contains.push(group)});
+      const matches=[...starts,...contains].slice(0,7);box.innerHTML=matches.length?matches.map(group=>`<button class="suggestion" data-stop="${escapeHtml(group.name)}"><strong>${escapeHtml(displayName(group.name))}</strong><small>${group.stops.length>1?group.stops.length+" Steige":""}</small></button>`).join(""):'<div class="suggestion"><small>Keine Haltestelle gefunden</small></div>';box.hidden=false;box.querySelectorAll("[data-stop]").forEach(button=>button.addEventListener("click",()=>selectStop(button.dataset.stop)));
+    }
+
+    function distanceKm(a,b){const r=6371,toRad=v=>v*Math.PI/180,dLat=toRad(b[1]-a[1]),dLon=toRad(b[0]-a[0]),lat1=toRad(a[1]),lat2=toRad(b[1]);return 2*r*Math.asin(Math.sqrt(Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2))}
+    function locate(){
+      if(!navigator.geolocation){showLocationError("Standort wird nicht unterstützt");return}
+      $("#locate").disabled=true;$("#locate").textContent="…";
+      navigator.geolocation.getCurrentPosition(position=>{
+        const here=[position.coords.longitude,position.coords.latitude];state.nearby=state.stopGroups.map(group=>({...group,distance:Math.min(...group.coordinates.map(c=>distanceKm(here,c)))})).filter(g=>Number.isFinite(g.distance)).sort((a,b)=>a.distance-b.distance).slice(0,6);renderNearby();$("#locate").disabled=false;$("#locate").textContent="◎ Nähe";
+      },()=>{showLocationError("Standort nicht freigegeben");$("#locate").disabled=false;$("#locate").textContent="◎ Nähe"},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+    }
+    function renderNearby(){const section=$("#nearby");section.hidden=false;$("#locationStatus").textContent="nach Entfernung";$("#nearbyList").innerHTML=state.nearby.map(group=>`<button class="nearby-chip" data-stop="${escapeHtml(group.name)}">${escapeHtml(displayName(group.name))}<small>${group.distance<1?Math.round(group.distance*1000)+" m":group.distance.toFixed(1)+" km"}</small></button>`).join("");section.querySelectorAll("[data-stop]").forEach(button=>button.addEventListener("click",()=>selectStop(button.dataset.stop)))}
+    function showLocationError(text){$("#nearby").hidden=false;$("#locationStatus").textContent="";$("#nearbyList").innerHTML=`<span style="color:var(--muted);font-size:12px">${escapeHtml(text)}</span>`}
+    async function tryAutoLocation(){if(!isSecureContext)return;try{const permission=await navigator.permissions?.query({name:"geolocation"});if(permission?.state==="granted")locate()}catch{}}
+    function showFatal(text){hero.className="hero missed";$("#heroLabel").textContent="Verbindung zur API fehlt";$("#heroStatus").textContent="später nochmal";$("#heroDetail").textContent=text;list.innerHTML=`<div class="message">${escapeHtml(text)}<button onclick="location.reload()">Neu versuchen</button></div>`}
+
+    $("#search").addEventListener("input",event=>searchStops(event.target.value));
+    $("#search").addEventListener("focus",event=>event.target.value&&searchStops(event.target.value));
+    document.addEventListener("click",event=>{if(!event.target.closest(".search-wrap"))$("#suggestions").hidden=true});
+    $("#locate").addEventListener("click",locate);$("#favorite").addEventListener("click",toggleFavorite);refreshButton.addEventListener("click",loadDepartures);
+    $("#overviewReset").addEventListener("click",resetOverview);
+    $("#settingsButton").addEventListener("click",openSettings);$("#editJourneys").addEventListener("click",openSettings);$("#settingsClose").addEventListener("click",()=>$("#settingsDialog").close());$("#addFavorite").addEventListener("click",addFavoriteFromMenu);$("#saveJourney").addEventListener("click",saveJourney);
+    $("#settingsDialog").addEventListener("click",event=>{if(event.target===$("#settingsDialog"))$("#settingsDialog").close()});
+    $("#walkMinutes").value=state.walkMinutes;$("#lineFilter").value=state.lineFilter;
+    $("#walkMinutes").addEventListener("change",event=>{state.walkMinutes=Math.max(0,Number(event.target.value)||0);localStorage.setItem("nz-walk-minutes",state.walkMinutes);renderHero()});
+    $("#lineFilter").addEventListener("input",event=>{state.lineFilter=event.target.value;localStorage.setItem("nz-line-filter",state.lineFilter);renderDepartures()});
+    initialize();refreshTimer=setInterval(()=>{if(state.stopGroups.length){loadDepartures();renderJourneys()}if(overviewMap)loadOverviewVehicles()},20000);setInterval(()=>state.departures.length&&renderDepartures(),15000);
+  </script>
+</body>
+</html>
