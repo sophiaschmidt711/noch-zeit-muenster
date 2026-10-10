@@ -9,6 +9,199 @@
     .map-actions{display:flex;gap:6px}.locate-map{display:grid;place-items:center;width:31px;height:31px;border:0;border-radius:10px;color:#513ab7;background:#eeeaff;font-size:16px;cursor:pointer}.nearby-button{margin:-8px 0 14px;padding:8px 10px;border:0;border-radius:11px;color:#513ab7;background:#eeeaff;font-size:12px;font-weight:800;cursor:pointer}.nearby-list{display:flex;gap:7px;overflow:auto;margin:-5px 0 14px;padding-bottom:3px;scrollbar-width:none}.nearby-chip{flex:0 0 auto;padding:8px 10px;border:0;border-radius:11px;background:#fff;font-size:12px;font-weight:800;box-shadow:var(--shadow);cursor:pointer}.nearby-chip small{display:block;margin-top:2px;color:var(--muted);font-weight:650}.line-filter{width:100%;margin:0 0 10px;padding:10px 13px;border:1px solid var(--line);border-radius:13px;background:#ffffffa8;outline:0;font-size:13px;font-weight:700}.stop{cursor:pointer}.stop:hover{color:var(--purple)}
     :root{--ink:#17131f;--paper:#f5f0e8;--purple:#7156df;--muted:#706a75;--line:#17131f20;--shadow:0 12px 32px #1e162a17}*{box-sizing:border-box}html{background:var(--paper)}body{margin:0;background:radial-gradient(circle at 90% 0,#7156df2e,transparent 27rem),var(--paper);color:var(--ink);font-family:ui-rounded,"SF Pro Rounded","Avenir Next",system-ui,sans-serif}button,input{font:inherit}button{color:inherit}.app{width:min(100%,620px);margin:auto;padding:max(24px,env(safe-area-inset-top)) 18px max(34px,env(safe-area-inset-bottom))}header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.eyebrow{margin:0 0 3px;color:var(--purple);font-size:11px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}h1{margin:0;font-size:clamp(38px,10vw,56px);line-height:.95;letter-spacing:-.06em}.refresh{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:#ffffffb3;font-size:22px;cursor:pointer}.refresh.loading{transform:rotate(180deg);transition:transform .3s}.search-wrap{position:relative;z-index:5;margin-bottom:19px}.search-box{display:grid;grid-template-columns:23px 1fr;gap:9px;align-items:center;min-height:58px;padding:5px 16px;border:1px solid var(--line);border-radius:19px;background:#ffffffe0;box-shadow:var(--shadow)}.search-icon{opacity:.55}.search-box input{min-width:0;border:0;outline:0;background:transparent;font-size:16px;font-weight:750}.search-box input::placeholder{color:#9d97a1}.suggestions{position:absolute;top:65px;right:0;left:0;overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff;box-shadow:0 18px 45px #17131f2e}.suggestion{display:flex;justify-content:space-between;width:100%;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:#fff;text-align:left;cursor:pointer}.suggestion:last-child{border:0}.suggestion:hover{background:#f0edff}.suggestion strong{font-size:14px}.suggestion small{color:var(--muted)}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 2px 9px}.section-head h2{margin:0;font-size:18px;letter-spacing:-.02em}.section-head span{color:var(--muted);font-size:11px;font-weight:700}.departures{display:grid;gap:8px}.departure{display:grid;grid-template-columns:51px 1fr auto;align-items:center;gap:12px;min-height:78px;padding:12px 14px 12px 12px;border:1px solid var(--line);border-radius:19px;background:#ffffffc7;cursor:pointer;text-align:left}.departure:hover{border-color:#7156df66;background:#fff}.line{display:grid;place-items:center;width:51px;height:51px;border-radius:15px;color:#fff;font-size:19px;font-weight:900;box-shadow:inset 0 -3px #0000001a}.destination{overflow:hidden;margin:0 0 5px;font-size:15px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}.meta{color:var(--muted);font-size:12px;font-weight:650}.delay{color:#b14a42}.time{text-align:right}.minutes{display:block;font-size:21px;font-weight:900;letter-spacing:-.05em}.clock{color:var(--muted);font-size:11px;font-weight:700}.message{padding:25px 18px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);font-size:13px;line-height:1.45;text-align:center}.map-card{overflow:hidden;margin-top:25px;border:1px solid var(--line);border-radius:23px;background:#fff;box-shadow:var(--shadow)}.map-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px}.map-head strong{display:block;font-size:15px}.map-head span{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:650}.map-reset{padding:7px 10px;border:0;border-radius:10px;color:#513ab7;background:#eeeaff;font-size:11px;font-weight:850;cursor:pointer}.map{height:300px;background:#eae4dc}.map-note{padding:10px 14px;color:var(--muted);font-size:11px;font-weight:650}.bus{display:grid;place-items:center;min-width:31px;height:30px;padding:0 5px;border:2px solid white;border-radius:10px;color:#fff;box-shadow:0 3px 10px #17131f40;font-size:10px;font-weight:950}.bus.selected{outline:4px solid #7156df40;transform:scale(1.12)}.route-panel{margin-top:13px;padding:14px 15px;border:1px solid var(--line);border-radius:19px;background:#ffffffa0}.route-title{margin:0;font-size:15px}.route-copy{margin:3px 0 11px;color:var(--muted);font-size:11px;font-weight:650}.stop{display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:8px;min-height:36px;font-size:12px}.dot{position:relative;width:12px;height:12px;border:3px solid #fff;border-radius:50%;background:#bab3be;box-shadow:0 0 0 1px #17131f33}.stop:not(:last-child) .dot::after{content:"";position:absolute;top:9px;left:2px;width:3px;height:27px;background:#dcd6df}.stop.upcoming .dot{background:var(--purple)}.stop.current .dot{background:#ee7168;box-shadow:0 0 0 5px #ee71682b}.stop.past{opacity:.44}.stop-name{font-weight:800}.stop-time{color:var(--muted);font-size:11px;font-weight:750}.leaflet-control-attribution{font-size:9px}footer{margin:17px 2px 0;color:var(--muted);font-size:11px;text-align:center}[hidden]{display:none!important}
   </style>
+  <style>
+/*
+ * Noch Zeit? · Münster
+ * Apple Design refresh for the existing single-file app.
+ * Add this after the current <style> block in index.html.
+ */
+
+:root {
+  --ink: #201b29;
+  --paper: #f7f5f2;
+  --purple: #6753c7;
+  --muted: #706b77;
+  --line: rgba(39, 31, 52, .11);
+  --shadow: 0 14px 34px rgba(38, 29, 55, .09);
+  --surface: rgba(255, 255, 255, .78);
+  --surface-strong: rgba(255, 255, 255, .92);
+  --ease-out: cubic-bezier(.2, .75, .25, 1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% -18rem, rgba(103, 83, 199, .14), transparent 38rem),
+    var(--paper);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.app { width: min(100%, 680px); padding-inline: clamp(16px, 4vw, 26px); }
+
+/* The header floats above the content as a light material layer. */
+header {
+  position: sticky;
+  top: max(8px, env(safe-area-inset-top));
+  z-index: 20;
+  margin: 0 -8px 18px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, .66);
+  border-radius: 22px;
+  background: rgba(247, 245, 242, .76);
+  box-shadow: 0 8px 24px rgba(38, 29, 55, .045);
+  backdrop-filter: blur(22px) saturate(155%);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+}
+
+h1 {
+  font-size: clamp(36px, 9vw, 52px);
+  line-height: .99;
+  letter-spacing: -.055em;
+  font-optical-sizing: auto;
+}
+.eyebrow { letter-spacing: .12em; }
+
+.refresh,
+.locate-map,
+.nearby-button,
+.map-reset,
+.nearby-chip,
+.departure,
+.suggestion {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 180ms var(--ease-out), background-color 180ms ease,
+    border-color 180ms ease, box-shadow 180ms ease;
+}
+.refresh { width: 46px; height: 46px; background: var(--surface-strong); }
+.refresh:active,
+.locate-map:active,
+.nearby-button:active,
+.map-reset:active,
+.nearby-chip:active,
+.departure:active,
+.suggestion:active {
+  transform: scale(.975);
+  transition-duration: 90ms;
+}
+
+.search-box {
+  min-height: 60px;
+  border-color: rgba(39, 31, 52, .08);
+  background: var(--surface-strong);
+  box-shadow: 0 12px 30px rgba(38, 29, 55, .07);
+  transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms var(--ease-out);
+}
+.search-box:focus-within {
+  border-color: rgba(103, 83, 199, .42);
+  box-shadow: 0 0 0 4px rgba(103, 83, 199, .11), 0 12px 30px rgba(38, 29, 55, .08);
+}
+.search-box input { font-weight: 650; }
+.suggestions {
+  border-color: rgba(39, 31, 52, .08);
+  background: var(--surface-strong);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.nearby-button {
+  min-height: 44px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(103, 83, 199, .10);
+  background: rgba(103, 83, 199, .085);
+}
+.nearby-chip { min-height: 44px; background: var(--surface-strong); }
+.section-head { margin-bottom: 11px; }
+.section-head h2 { font-size: 19px; letter-spacing: -.025em; }
+.section-head span { letter-spacing: .01em; }
+.line-filter {
+  min-height: 46px;
+  border-color: rgba(39, 31, 52, .10);
+  background: rgba(255, 255, 255, .76);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.line-filter:focus {
+  border-color: rgba(103, 83, 199, .46);
+  box-shadow: 0 0 0 4px rgba(103, 83, 199, .11);
+}
+
+.departure {
+  min-height: 82px;
+  border-color: rgba(39, 31, 52, .085);
+  background: var(--surface);
+  box-shadow: 0 5px 15px rgba(38, 29, 55, .035);
+  touch-action: manipulation;
+}
+.departure:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(38, 29, 55, .075); }
+.departure:active { transform: scale(.985); }
+.line { border-radius: 16px; }
+.minutes { font-variant-numeric: tabular-nums; }
+.clock, .meta, .stop-time { font-variant-numeric: tabular-nums; }
+.message { background: rgba(255, 255, 255, .55); }
+
+.map-card {
+  border-color: rgba(39, 31, 52, .09);
+  box-shadow: 0 14px 34px rgba(38, 29, 55, .08);
+}
+.map-head { min-height: 64px; }
+.locate-map, .map-reset { min-width: 44px; min-height: 44px; }
+.map { height: clamp(250px, 68vw, 340px); }
+.route-panel {
+  border-color: rgba(39, 31, 52, .09);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: 0 8px 24px rgba(38, 29, 55, .045);
+  animation: panel-arrive 260ms var(--ease-out) both;
+}
+@keyframes panel-arrive {
+  from { opacity: 0; transform: translateY(7px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+button, input { touch-action: manipulation; }
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(103, 83, 199, .62);
+  outline-offset: 3px;
+}
+button:disabled { cursor: wait; opacity: .72; }
+
+@media (max-width: 420px) {
+  .app { padding-inline: 15px; }
+  header { margin-inline: -5px; }
+  .departure { grid-template-columns: 46px minmax(0, 1fr) auto; gap: 10px; }
+  .line { width: 46px; height: 46px; }
+  .destination { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  header, .search-box, .suggestions, .departure, .route-panel {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root { --line: rgba(20, 15, 28, .34); }
+  header, .search-box, .departure, .map-card, .route-panel, .line-filter {
+    border: 1px solid #514b58;
+  }
+}
+
+  </style>
 </head>
 <body><main class="app">
   <header><div><p class="eyebrow">Münster · live</p><h1>Noch Zeit?</h1></div><button class="refresh" id="refresh" aria-label="Aktualisieren">↻</button></header>
