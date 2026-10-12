@@ -116,8 +116,10 @@
     <div class="map-legend">
       <span class="dir dir-in"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="19" cy="12" r="2.5"/><path d="M3 12h10m-4-4 4 4-4 4"/></svg>Stadteinwärts</span>
       <span class="dir dir-out"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2.5"/><path d="M11 12h10m-4-4 4 4-4 4"/></svg>Stadtauswärts</span>
-      <span class="legend-text">Der Pfeil am Bus zeigt seine Fahrtrichtung, die Farbe ein- oder auswärts.</span>
+      <span class="dir dir-unknown"><span aria-hidden="true">?</span>Richtung unklar</span>
+      <span class="legend-text">Pfeil = aktuelle Bewegung · gestrichelter Rand = geschätzt · ! = Kartenbewegung weicht ab</span>
     </div>
+    <p class="direction-quality" id="directionQuality" hidden></p>
     <div class="map-note" id="note">Live-Positionen werden geladen …</div>
   </section>
 
