@@ -1,7 +1,7 @@
 /* Service worker: caches the app shell so the page opens offline.
  * Live data (BusRadar API) and map tiles are never intercepted or cached here.
  * Bump VERSION whenever the shell files change in a way that must reach users at once. */
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = "nz-shell-" + VERSION;
 const SHELL = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icon-512.png", "apple-touch-icon.png"];
 const LEAFLET = [
