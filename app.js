@@ -80,7 +80,28 @@ function vehicleInfo(f) {
   const target = (next || state.platforms.get(p.zielhst))?.coord;
   const geo = pos && target ? dirFromGeometry(pos, target) : null;
   const op = next ? next.dir : null;
-  return { dir: op || geo, op, geo, bearing: pos && target ? bearing(pos, target) : null };
+  return {
+    dir: op || geo,
+    source: op ? "api" : geo ? "estimate" : "unknown",
+    conflict: Boolean(op && geo && op !== geo),
+    op, geo,
+    bearing: pos && target ? bearing(pos, target) : null
+  };
+}
+
+function directionDescription(info) {
+  if (!info?.dir) return "Richtung unklar";
+  const source = info.source === "estimate" ? "geschätzt" : "laut Haltestellendaten";
+  return DIR_LABEL[info.dir] + " · " + source + (info.conflict ? " · Kartenbewegung weicht ab" : "");
+}
+
+function directionPill(dir, source = "api", conflict = false) {
+  if (!dir) return '<span class="dir dir-unknown"><span aria-hidden="true">?</span>Richtung unklar</span>';
+  const estimated = source === "estimate";
+  const label = estimated ? "geschätzt" : "Haltestelle";
+  return '<span class="dir dir-' + dir + (estimated ? " dir-estimated" : "") + (conflict ? " dir-conflict" : "") + '"' +
+    ' title="' + esc(directionDescription({ dir, source, conflict })) + '">' + DIR_ICON[dir] + DIR_LABEL[dir] +
+    '<span class="dir-source">' + label + '</span>' + (conflict ? '<span class="dir-conflict-mark" aria-label="Kartenbewegung weicht ab">!</span>' : "") + '</span>';
 }
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -300,7 +321,7 @@ async function loadDepartures({ reset = false } = {}) {
     const results = await Promise.allSettled(g.stops.map(s =>
       api("/haltestellen/" + encodeURIComponent(s.nr) + "/abfahrten?sekunden=7200").then(list => {
         const dir = dirFromLabel(s.richtung);
-        return Array.isArray(list) ? list.map(d => ({ ...d, dir })) : [];
+        return Array.isArray(list) ? list.map(d => ({ ...d, dir, dirSource: dir ? "api" : "unknown" })) : [];
       })));
     if (token !== depToken) return; // a newer request has taken over
     const fulfilled = results.filter(r => r.status === "fulfilled");
@@ -339,11 +360,16 @@ async function loadDepartures({ reset = false } = {}) {
 function renderDepartures() {
   const filter = state.lineFilter.trim().toLocaleLowerCase("de-DE");
   const byLine = state.departures.filter(d => !filter || String(d.linientext || "").toLocaleLowerCase("de-DE") === filter);
-  const items = state.dir === "all" ? byLine : byLine.filter(d => d.dir === state.dir);
-  const hidden = byLine.length - items.length;
+  const items = state.dir === "all" ? byLine : byLine.filter(d => d.dir === state.dir || !d.dir);
+  const unknown = byLine.filter(d => !d.dir).length;
+  const hidden = byLine.length - items.length - unknown;
   const note = $("#dirNote");
-  note.hidden = !(state.dir !== "all" && hidden > 0);
-  if (!note.hidden) note.textContent = hidden + (hidden === 1 ? " Abfahrt" : " Abfahrten") + " ohne passende oder bekannte Richtung ausgeblendet.";
+  note.hidden = !(state.dir !== "all" && (hidden > 0 || unknown > 0));
+  if (!note.hidden) {
+    const hiddenText = hidden ? hidden + (hidden === 1 ? " Abfahrt" : " Abfahrten") + " in Gegenrichtung ausgeblendet" : "";
+    const unknownText = unknown ? unknown + (unknown === 1 ? " Abfahrt mit" : " Abfahrten mit") + " unklarer Richtung weiterhin angezeigt" : "";
+    note.textContent = [hiddenText, unknownText].filter(Boolean).join(" · ") + ".";
+  }
 
   if (!items.length) {
     const text = filter ? "Für diese Linie ist gerade keine Abfahrt gemeldet."
@@ -355,7 +381,7 @@ function renderDepartures() {
   setDepartures(items.map(d => {
     const delay = Math.round(Number(d.delay || 0) / 60);
     const meta = delay > 0 ? "+" + delay + " Min. später" : delay < 0 ? Math.abs(delay) + " Min. früher" : "pünktlich";
-    const pill = d.dir ? '<span class="dir dir-' + d.dir + '">' + DIR_ICON[d.dir] + DIR_LABEL[d.dir] + "</span>" : "";
+    const pill = directionPill(d.dir, d.dirSource);
     return '<button type="button" class="departure" data-trip="' + esc(d.fahrtbezeichner) + '">' +
       '<span class="line" style="background:' + color(d.linientext) + '"><span class="sr-only">Linie </span>' + esc(d.linientext) + "</span>" +
       '<span class="dep-main"><span class="destination">' + esc(d.richtungstext || "Richtung unbekannt") + "</span>" +
@@ -393,17 +419,19 @@ function renderVehicles() {
 
   let list = state.vehicles.filter(f => !state.line || String(f.properties?.linientext) === String(state.line));
   // The direction filter applies to the overview only; while a line is selected both directions stay visible.
-  if (!state.line && state.dir !== "all") list = list.filter(f => f.nz.dir === state.dir);
+  if (!state.line && state.dir !== "all") list = list.filter(f => f.nz.dir === state.dir || !f.nz.dir);
 
   list.forEach(f => {
     const c = f.geometry?.coordinates, p = f.properties || {}, info = f.nz;
     if (!c) return;
     const point = [c[1], c[0]];
     const selected = state.trip === p.fahrtbezeichner;
-    // Small round badge: arrow = real heading of the bus, colour + tooltip = inbound / outbound.
+    // The ring colour shows the centre direction; its outline shows how that value was obtained.
+    const badgeClass = "bus-arrow" + (info.dir ? " " + info.dir : " unknown") +
+      (info.source === "estimate" ? " estimated" : "") + (info.conflict ? " conflict" : "");
     const badge = info.dir && info.bearing !== null
-      ? '<span class="bus-arrow ' + info.dir + '"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="transform:rotate(' + Math.round(info.bearing) + 'deg)"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>'
-      : "";
+      ? '<span class="' + badgeClass + '" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" focusable="false" style="transform:rotate(' + Math.round(info.bearing) + 'deg)"><path d="M12 19V5M6 11l6-6 6 6"/></svg>' + (info.conflict ? '<b class="bus-conflict-mark">!</b>' : "") + '</span>'
+      : '<span class="' + badgeClass + '" aria-hidden="true">?</span>';
     const icon = L.divIcon({
       className: "",
       html: '<div class="bus' + (selected ? " selected" : "") + '" style="background:' + color(p.linientext) + '">' + esc(p.linientext || "Bus") + badge + "</div>",
@@ -412,8 +440,8 @@ function renderVehicles() {
     });
     // keyboard:false – ~100 buses would otherwise become ~100 tab stops; the list offers the same actions.
     const m = L.marker(point, { icon, keyboard: false }).addTo(markers);
-    m.bindTooltip("Linie " + esc(p.linientext || "") + " · " + esc(p.richtungstext || "") + (info.dir ? " · " + DIR_LABEL[info.dir] : ""), { direction: "top", offset: [0, -12] });
-    m.on("click", () => showTrip({ fahrtbezeichner: p.fahrtbezeichner, fahrzeugid: p.fahrzeugid, linientext: p.linientext, richtungstext: p.richtungstext, dir: info.dir }));
+    m.bindTooltip("Linie " + esc(p.linientext || "") + " · " + esc(p.richtungstext || "") + " · " + esc(directionDescription(info)), { direction: "top", offset: [0, -12] });
+    m.on("click", () => showTrip({ fahrtbezeichner: p.fahrtbezeichner, fahrzeugid: p.fahrzeugid, linientext: p.linientext, richtungstext: p.richtungstext, dir: info.dir, dirSource: info.source, dirConflict: info.conflict }));
     bounds.push(point);
   });
 
@@ -424,7 +452,7 @@ function renderVehicles() {
     if (state.dir === "all") $("#note").textContent = bus(n) + " live · Bus oder Haltestelle antippen.";
     else {
       const unknown = state.vehicles.filter(f => !f.nz.dir).length;
-      $("#note").textContent = bus(list.length) + " " + DIR_LABEL[state.dir] + (unknown ? " · " + unknown + " ohne Richtungsangabe ausgeblendet" : "") + ".";
+      $("#note").textContent = bus(list.length) + " angezeigt · " + DIR_LABEL[state.dir] + " und " + unknown + " mit unklarer Richtung.";
     }
   }
 }
@@ -432,12 +460,21 @@ function renderVehicles() {
 /* One-time self-check in the browser console: do the operator's platform labels and the
  * city-centre geometry agree? A high agreement confirms that "einwärts" really means "towards the centre". */
 function logDirectionCheck() {
-  if (state.dirChecked || !state.platforms.size || !state.vehicles.length) return;
-  state.dirChecked = true;
+  if (!state.platforms.size || !state.vehicles.length) return;
   const both = state.vehicles.filter(f => f.nz.op && f.nz.geo);
   const agree = both.filter(f => f.nz.op === f.nz.geo).length;
+  const disagree = both.length - agree;
   const unknown = state.vehicles.filter(f => !f.nz.dir).length;
-  console.info("[Noch Zeit?] Richtungs-Check: Betreiberangabe und Geometrie stimmen bei " + agree + " von " + both.length + " Bussen überein; " + unknown + " Busse ohne Richtungsangabe.");
+  const quality = $("#directionQuality");
+  quality.hidden = false;
+  quality.textContent = "Live-Vergleich: Haltestellenlabel und Bewegung Richtung Zentrum stimmen bei " + agree + " von " + both.length + " Bussen überein" +
+    (disagree ? "; bei " + disagree + " weichen sie ab" : "") +
+    (unknown ? ". " + unknown + " Busse ohne klare Richtung." : ".") +
+    " Die Kartenbewegung ist bei Quer- und Ringlinien kein sicherer Beleg.";
+  if (!state.dirChecked) {
+    state.dirChecked = true;
+    console.info("[Noch Zeit?] Richtungs-Check: Betreiberangabe und Geometrie stimmen bei " + agree + " von " + both.length + " Bussen überein; " + disagree + " Abweichungen; " + unknown + " ohne Richtungsangabe.");
+  }
 }
 
 function vehicle(item) {
@@ -452,9 +489,9 @@ async function showTrip(item, { scroll = false } = {}) {
   state.trip = item.fahrtbezeichner;
   state.line = item.linientext || null;
   const known = vehicle(item);
-  const dir = item.dir || (known ? vehicleInfo(known).dir : null);
+  const info = known ? vehicleInfo(known) : { dir: item.dir, source: item.dirSource || "unknown", conflict: item.dirConflict || false };
   $("#mapTitle").textContent = "Linie " + (item.linientext || "");
-  $("#mapSubtitle").textContent = "Richtung " + (item.richtungstext || "unbekannt") + (dir ? " · " + DIR_LABEL[dir] : "");
+  $("#mapSubtitle").textContent = "Richtung " + (item.richtungstext || "unbekannt") + " · " + directionDescription(info);
   $("#note").textContent = "Fahrtweg wird geladen …";
   $("#reset").hidden = false;
   updateZoomHint();
