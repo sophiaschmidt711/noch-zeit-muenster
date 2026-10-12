@@ -23,6 +23,13 @@ Live: https://sophiaschmidt711.github.io/noch-zeit-muenster/
 - Karte: © OpenStreetMap-Mitwirkende (Attribution bleibt in der Karte sichtbar)
 - Kartenbibliothek: [Leaflet](https://leafletjs.com) 1.9.4 (per CDN, mit Integritätsprüfung für das Skript)
 
+## Fahrtrichtung
+
+- Abfahrten übernehmen „einwärts“ / „auswärts“ von der jeweiligen Haltestellenplattform.
+- Bei Bussen hat das Haltestellenlabel Vorrang. Fehlt es, schätzt die App die Richtung anhand der nächsten Haltestelle und der Entfernung zum Prinzipalmarkt.
+- Die Anzeige kennzeichnet Schätzungen und unklare Richtungen. Busse ohne bekannte Richtung bleiben bei einem Richtungsfilter sichtbar.
+- Die App vergleicht außerdem Haltestellenlabel und Bewegung Richtung Zentrum. Bei Querverbindungen und Ringlinien ist diese Bewegung kein sicherer Beleg für die Fahrtrichtung.
+
 ## Fehler „API key required“ – Vorgehen
 
 1. Seite öffnen, `F12` → Reiter **Netzwerk**, neu laden, nach Anfragen mit Status `401`/`403` suchen.
