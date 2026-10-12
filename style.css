@@ -353,6 +353,10 @@ h1 {
 .dir .ico { width: 14px; height: 14px; stroke-width: 2.4; }
 .dir-in { color: #0b3f8f; background: #e4eeff; }
 .dir-out { color: #7a3e00; background: #ffefd6; }
+.dir-unknown { color: #4e4855; background: #ece9ef; }
+.dir-estimated { outline: 1px dashed currentColor; outline-offset: -2px; }
+.dir-source { font-size: 9px; font-weight: 700; opacity: .82; }
+.dir-conflict-mark { display: inline-grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #302300; background: #ffd15c; font-size: 10px; font-weight: 950; }
 .dep-main .dir { display: flex; width: max-content; max-width: 100%; margin-top: 6px; }
 
 .dir-filter {
@@ -386,6 +390,7 @@ h1 {
   box-shadow: 0 2px 8px rgba(38, 29, 55, .12);
 }
 .dir-note { margin: -2px 2px 10px; color: var(--muted); font-size: 11px; font-weight: 650; }
+.direction-quality { margin: 8px 14px 0; color: var(--muted); font-size: 11px; font-weight: 650; line-height: 1.4; }
 
 .map-legend {
   display: flex;
@@ -497,7 +502,11 @@ h1 {
 }
 .bus-arrow.in { background: #0b4fa8; }
 .bus-arrow.out { background: #b45309; }
+.bus-arrow.unknown { background: #66616b; font-size: 11px; font-weight: 950; }
+.bus-arrow.estimated { border-style: dashed; }
+.bus-arrow.conflict { outline: 2px solid #ffd15c; outline-offset: 1px; }
 .bus-arrow .ico { width: 11px; height: 11px; stroke-width: 3.2; }
+.bus-conflict-mark { position: absolute; top: -7px; right: -6px; display: grid; place-items: center; width: 11px; height: 11px; border: 1px solid #fff; border-radius: 50%; color: #302300; background: #ffd15c; font-size: 8px; line-height: 1; }
 .bus {
   position: relative;
   display: grid;
